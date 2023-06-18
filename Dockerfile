@@ -1,7 +1,7 @@
-FROM ubuntu:20.04
+FROM debian:stable-slim
 
-ARG OPENTTD_VERSION="1.12.2"
-ARG OPENGFX_VERSION="0.6.1"
+ARG OPENTTD_VERSION="13.0"
+ARG OPENGFX_VERSION="7.1"
 
 ADD prepare.sh /tmp/prepare.sh
 ADD cleanup.sh /tmp/cleanup.sh
@@ -9,8 +9,8 @@ ADD buildconfig /tmp/buildconfig
 ADD --chown=1000:1000 openttd.sh /openttd.sh
 
 RUN chmod +x /tmp/prepare.sh /tmp/cleanup.sh /openttd.sh
-RUN /tmp/prepare.sh \
-    && /tmp/cleanup.sh
+RUN /tmp/prepare.sh
+RUN /tmp/cleanup.sh
 
 VOLUME /home/openttd/.openttd
 

@@ -1,5 +1,8 @@
-![Docker Image CI](https://github.com/bateau84/openttd/workflows/Docker%20Image%20CI/badge.svg?branch=master)  
-[![dockeri.co](https://dockeri.co/image/bateau/openttd)](https://hub.docker.com/r/bateau/openttd)
+![Docker Image CI](https://github.com/nnaso/openttd/workflows/Docker%20Image%20CI/badge.svg?branch=master)  
+[![dockeri.co](https://dockeri.co/image/nextek/openttd)](https://hub.docker.com/r/nextek/openttd)
+
+### A Debian-Slim based image of [bateau/openttd](https://hub.docker.com/r/bateau/openttd)'s docker. ###
+
 ## Usage ##
 
 ### File locations ###
@@ -65,4 +68,4 @@ just run
 and it will apply configmap with openttd.cfg, deployment and service listening on port 31979 UDP/TCP.
 
 ## Other tags ##
-   * See [bateau/openttd](https://hub.docker.com/r/bateau/openttd) on docker hub for other tags
+   * See [nextek/openttd](https://hub.docker.com/r/nextek/openttd) on docker hub for other tags
