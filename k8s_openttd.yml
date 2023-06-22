@@ -33,7 +33,7 @@ spec:
                   name: openttd-user-config
                   key: UID
       containers:
-        - image: bateau/openttd:latest
+        - image: nextek/openttd:latest
           imagePullPolicy: Always
           name: openttd
           securityContext:

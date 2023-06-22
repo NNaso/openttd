@@ -1,7 +1,7 @@
 ![Docker Image CI](https://github.com/nnaso/openttd/workflows/Docker%20Image%20CI/badge.svg?branch=master)  
 [![dockeri.co](https://dockeri.co/image/nextek/openttd)](https://hub.docker.com/r/nextek/openttd)
 
-### A Debian-Slim based image of [bateau/openttd](https://hub.docker.com/r/bateau/openttd)'s docker. ###
+### An Alpine based image of [bateau/openttd](https://hub.docker.com/r/bateau/openttd)'s docker. ###
 
 ## Usage ##
 

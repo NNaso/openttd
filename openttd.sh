@@ -1,21 +1,23 @@
 #!/bin/sh
 
+set -o errexit
+set -o pipefail
+
 savepath="/home/openttd/.openttd/save"
 savegame="${savepath}/${savename}"
 LOADGAME_CHECK="${loadgame}x"
 loadgame=${loadgame:-'false'}
-
-execpath="/usr/games/openttd"
-
-if [ -d "$execpath" ]
-then
-        execpath="/usr/games/openttd/openttd"
-fi
+execpath="/usr/games/openttd/openttd"
 
 PUID=${PUID:-911}
 PGID=${PGID:-911}
 PHOME=${PHOME:-"/home/openttd"}
 USER=${USER:-"openttd"}
+
+addgroup --gid "${PGID}" --system openttd
+adduser openttd --disabled-password --uid "${PUID}" -s /bin/sh -G openttd
+
+chmod +x $execpath
 
 if [ ! "$(id -u ${USER})" -eq "$PUID" ]; then usermod -o -u "$PUID" ${USER} ; fi
 if [ ! "$(id -g ${USER})" -eq "$PGID" ]; then groupmod -o -g "$PGID" ${USER} ; fi

@@ -1,22 +1,57 @@
-FROM debian:stable-slim
+FROM alpine:latest AS td_build
 
-ARG OPENTTD_VERSION="13.0"
+ARG OPENTTD_VERSION="13.3"
 ARG OPENGFX_VERSION="7.1"
 
-ADD prepare.sh /tmp/prepare.sh
-ADD cleanup.sh /tmp/cleanup.sh
-ADD buildconfig /tmp/buildconfig
-ADD --chown=1000:1000 openttd.sh /openttd.sh
+RUN mkdir -p /config \
+    && mkdir /tmp/src
 
-RUN chmod +x /tmp/prepare.sh /tmp/cleanup.sh /openttd.sh
-RUN /tmp/prepare.sh
-RUN /tmp/cleanup.sh
+# Install build dependencies
+RUN apk --no-cache add \
+    unzip \
+    wget \
+    git \
+    g++ \
+    make \
+    cmake \
+    patch \
+    xz-dev \
+    pkgconfig \
+    bash
 
-VOLUME /home/openttd/.openttd
+# Build OpenTTD itself
+WORKDIR /tmp/src
 
-EXPOSE 3979/tcp
-EXPOSE 3979/udp
+RUN git clone https://github.com/OpenTTD/OpenTTD.git . \
+    && git fetch --tags \
+    && git checkout ${OPENTTD_VERSION}
 
-STOPSIGNAL 3
-ENTRYPOINT [ "/usr/bin/dumb-init", "--rewrite", "15:3", "--rewrite", "9:3", "--" ]
-CMD [ "/openttd.sh" ]
+# Perform the build with the build script (1.11 switches to cmake, so use a script for decision making)
+ADD builder.sh /usr/local/bin/builder
+RUN chmod +x /usr/local/bin/builder && builder && rm /usr/local/bin/builder
+
+# Add the latest graphics files
+## Install OpenGFX
+RUN mkdir -p /app/data/baseset/ \
+    && cd /app/data/baseset/ \
+    && wget -q https://cdn.openttd.org/opengfx-releases/${OPENGFX_VERSION}/opengfx-${OPENGFX_VERSION}-all.zip \
+    && unzip opengfx-${OPENGFX_VERSION}-all.zip \
+    && tar -xf opengfx-${OPENGFX_VERSION}.tar \
+    && rm -rf opengfx-*.tar opengfx-*.zip
+
+
+FROM alpine:latest
+ARG OPENTTD_VERSION="13.3"
+RUN mkdir -p /usr/games/openttd/ \
+    && apk --no-cache add tini xz libstdc++ libgcc
+
+COPY --from=td_build /app /usr/games/openttd
+COPY --chown=1000:1000 --chmod=+x openttd.sh /openttd.sh
+RUN chmod +x /openttd.sh
+
+ENV PUID=1000
+ENV PGID=1000
+
+EXPOSE 3979/tcp 3979/udp
+
+ENTRYPOINT ["tini", "-vv", "--", "/openttd.sh"]

@@ -41,9 +41,9 @@ jobs:
     if: vars.LATEST_DEPLOY != needs.get_versions.outputs.latest
     strategy:
       matrix:
-        #version: ${{ fromJson(needs.get_versions.outputs.versions) }}
-        include:
-          - version: ${{ needs.get_versions.outputs.latest }}
+        version: ${{ fromJson(needs.get_versions.outputs.versions) }}
+        # include:
+        #   - version: ${{ needs.get_versions.outputs.latest }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
