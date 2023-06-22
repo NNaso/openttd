@@ -36,7 +36,7 @@ jobs:
 
   # Build openttd images
   build:
-    runs-on: actuated
+    runs-on: ubuntu-latest
     needs: get_versions
     if: vars.LATEST_DEPLOY != needs.get_versions.outputs.latest
     strategy:
@@ -47,8 +47,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Setup mirror
-        uses: self-actuated/hub-mirror@master
       - name: Docker registry authentication
         uses: docker/login-action@v2
         with:
