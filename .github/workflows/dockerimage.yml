@@ -18,7 +18,7 @@ env:
 jobs:
   # Get list of versions
   get_versions:
-    runs-on: actuated
+    runs-on: ubuntu-latest
     steps:
       - name: get versions
         id: get_versions
@@ -36,7 +36,7 @@ jobs:
 
   # Build openttd images
   build:
-    runs-on: ubuntu-latest
+    runs-on: actuated
     needs: get_versions
     if: vars.LATEST_DEPLOY != needs.get_versions.outputs.latest
     strategy:
