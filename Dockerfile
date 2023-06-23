@@ -1,5 +1,4 @@
-FROM --platform=$BUILDPLATFORM alpine:latest AS td_build
-ARG TARGETPLATFORM
+FROM alpine:latest AS td_build
 
 ARG OPENTTD_VERSION="13.3"
 ARG OPENGFX_VERSION="7.1"
@@ -15,15 +14,10 @@ RUN apk --no-cache add \
     g++ \
     make \
     cmake \
-    clang \
-    lld \
     patch \
     xz-dev \
     pkgconfig \
-    zlib \
-    libpng \
-    lzo \
-    musl-dev gcc
+    bash
 
 # Build OpenTTD itself
 WORKDIR /tmp/src
@@ -32,24 +26,9 @@ RUN git clone https://github.com/OpenTTD/OpenTTD.git . \
     && git fetch --tags \
     && git checkout ${OPENTTD_VERSION}
 
-
-RUN mkdir /tmp/build && cd /tmp/build && \
-    cmake $(/xx-clang --print-cmake-defines) \
-    -DOPTION_DEDICATED=ON \
-    -DOPTION_INSTALL_FHS=OFF \
-    -DCMAKE_BUILD_TYPE=release \
-    -DGLOBAL_DIR=/app \
-    -DPERSONAL_DIR=/ \
-    -DCMAKE_BINARY_DIR=bin \
-    -DCMAKE_INSTALL_PREFIX=/app \
-    -DCMAKE_TOOLCHAIN_FILE="${CMAKE_TOOLCHAIN_FILE}" \
-    ../src && \
-  make CMAKE_BUILD_TYPE=release -j"$(nproc)" && \
-  make install
-
 # Perform the build with the build script (1.11 switches to cmake, so use a script for decision making)
-# ADD builder.sh /usr/local/bin/builder
-# RUN chmod +x /usr/local/bin/builder && builder && rm /usr/local/bin/builder
+ADD builder.sh /usr/local/bin/builder
+RUN chmod +x /usr/local/bin/builder && builder && rm /usr/local/bin/builder
 
 # Add the latest graphics files
 ## Install OpenGFX
@@ -64,7 +43,7 @@ RUN mkdir -p /app/data/baseset/ \
 FROM alpine:latest
 ARG OPENTTD_VERSION="13.3"
 RUN mkdir -p /usr/games/openttd/ \
-    && apk --no-cache add tini xz libstdc++ libgcc zlib bash musl
+    && apk --no-cache add tini xz libstdc++ libgcc
 
 COPY --from=td_build /app /usr/games/openttd
 COPY --chown=1000:1000 --chmod=+x openttd.sh /openttd.sh
