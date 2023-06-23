@@ -10,6 +10,7 @@ then
     -DPERSONAL_DIR=/ \
     -DCMAKE_BINARY_DIR=bin \
     -DCMAKE_INSTALL_PREFIX=/app \
+    -DCMAKE_TOOLCHAIN_FILE="${CMAKE_TOOLCHAIN_FILE}" \
     ../src && \
   make CMAKE_BUILD_TYPE=release -j"$(nproc)" && \
   make install
