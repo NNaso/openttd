@@ -10,6 +10,7 @@ then
     -DPERSONAL_DIR=/ \
     -DCMAKE_BINARY_DIR=bin \
     -DCMAKE_INSTALL_PREFIX=/app \
+    -DHOST_BINARY_DIR=../build-host\
     ../src && \
   make CMAKE_BUILD_TYPE=release -j"$(nproc)" && \
   make install

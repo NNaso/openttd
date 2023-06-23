@@ -2,10 +2,10 @@
 name: Docker Image CI
 
 on:
-  schedule:
-    - cron: '0 */6 * * *'
-#   push:
-#     branches: [master]
+  # schedule:
+  #   - cron: '0 */6 * * *'
+  # push:
+  #   branches: [master]
 #   pull_request:
 #     branches: [master]
   workflow_dispatch:
@@ -60,14 +60,31 @@ jobs:
       - name: Output platforms
         run: |
           echo "Platforms: ${{ steps.buildx.outputs.platforms }}"
+      - name: Clone OpenTTD Source
+        run: |
+          git clone --depth 1 --branch "${{ matrix.version }}" https://github.com/OpenTTD/OpenTTD.git ./src
+        # git fetch --tags
+        # git checkout "${{ matrix.version }}"
+      # - name: Clone OpenTTD Source
+      #   uses: actions/checkout@v3
+      #   with:
+      #     repository: OpenTTD/OpenTTD
+      #     path: '${{ github.workspace }}/src'
+      #     ref: ${{ matrix.version }} 
+      - name: Output OpenTTD Path
+        run: |
+          ls ${{ github.workspace }}/src
+          cat ${{ github.workspace }}/src/changelog.txt
       - name: Build and push ${{ matrix.version }} with latest tag
         if: needs.get_versions.outputs.latest == matrix.version
         uses: docker/build-push-action@v4
         with:
           push: true
-          pull: true
-          platforms: linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6
-          build-args: OPENTTD_VERSION=${{ matrix.version }}
+          #pull: true
+          platforms: linux/amd64,linux/arm/v7
+          build-args: |
+            OPENTTD_VERSION=${{ matrix.version }}
+          build-contexts: openttd=${{ github.workspace }}/src
           tags: |
             ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
             ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}
@@ -76,9 +93,11 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          pull: true
-          platforms: linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6
-          build-args: OPENTTD_VERSION=${{ matrix.version }}
+          #pull: true
+          platforms: linux/amd64,linux/arm/v7
+          build-args: |
+            OPENTTD_VERSION=${{ matrix.version }}
+          build-contexts: openttd=${{ github.workspace }}/src
           tags: ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ matrix.version }}
       - name: Update latest deployed version
         run: |
