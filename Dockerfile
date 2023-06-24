@@ -43,11 +43,6 @@ RUN cd /tmp/build && \
 RUN make CMAKE_BUILD_TYPE=release -j"$(nproc)" && \
     make install
 
-# Perform the build with the build script (1.11 switches to cmake, so use a script for decision making)
-#ADD builder.sh /usr/local/bin/builder
-#ARG TARGETPLATFORM
-#RUN chmod +x /usr/local/bin/builder && builder && rm /usr/local/bin/builder
-
 # Add the latest graphics files
 ## Install OpenGFX
 RUN mkdir -p /app/data/baseset/ \
