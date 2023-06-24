@@ -15,8 +15,8 @@ env:
   DOCKER_IMAGE_NAME: openttd
 
 jobs:
-  Fetch OTTD Versions:
-    id: get_versions
+  get_versions:
+    name: Fetch OTTD Versions
     runs-on: ubuntu-latest
     steps:
       - name: get versions
@@ -33,8 +33,8 @@ jobs:
       target: ${{ steps.get_versions.outputs.target }}
       latest: ${{ steps.get_versions.outputs.latest }}
 
-  Cache OTTD Source:
-    id: fetch_openttd_source
+  fetch_openttd_source:
+    name: Cache OTTD Source
     runs-on: ubuntu-latest
     needs: get_versions
     if: vars.LATEST_DEPLOY != needs.get_versions.outputs.target
@@ -54,8 +54,8 @@ jobs:
           path: ./src
           key: ${{ runner.os }}-ottd
 
-  Build OpenTTD Docker:
-    id: build-push
+  build-push:
+    name: Build OpenTTD Docker
     runs-on: ubuntu-latest
     needs: [get_versions, fetch_openttd_source]
     strategy:
@@ -123,7 +123,8 @@ jobs:
           build-contexts: openttd=${{ github.workspace }}/src
           tags: ${{ steps.meta.outputs.tags }}
 
-  Create Multi-Platform Manifest:
+  build-manifest:
+    name: Create Multi-Platform Manifest
     runs-on: ubuntu-latest
     needs: [get_versions, build-push]
 
