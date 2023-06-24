@@ -261,19 +261,20 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
           
-      - name: Create SHA manifest and push
+      - name: Create Version manifest and push
         run: |
           docker manifest create \
             ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }} \
             --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-amd64
-          docker manifest push ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}
+          docker manifest push --purge ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}
 
       - name: Create latest manifest and push
+        if: needs.get_versions.outputs.latest == needs.get_versions.outputs.target
         run: |
           docker manifest create \
             ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest \
             --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-amd64
-          docker manifest push ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+          docker manifest push --purge ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
 
       - name: Update latest deployed version
         run: |
@@ -286,8 +287,8 @@ jobs:
           format: 'sarif'
           output: 'trivy-results.sarif'
 
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
-        if: always()
-        with:
-          sarif_file: 'trivy-results.sarif'
+      # - name: Upload Trivy scan results to GitHub Security tab
+      #   uses: github/codeql-action/upload-sarif@v2
+      #   if: always()
+      #   with:
+      #     sarif_file: 'trivy-results.sarif'
