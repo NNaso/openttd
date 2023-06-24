@@ -1,8 +1,8 @@
 name: Docker Build Latest
 
 on:
-  # schedule:
-  #   - cron: '0 */6 * * *'
+  schedule:
+    - cron: '0 */6 * * *'
   # push:
   #   branches: [master]
 #   pull_request:
@@ -55,7 +55,7 @@ jobs:
           key: ottd-${{ needs.get_versions.outputs.target }}
 
   build-push:
-    name: Build OpenTTD Docker
+    name: Build OTTD Docker
     runs-on: ubuntu-latest
     needs: [get_versions, fetch_openttd_source]
     strategy:
@@ -65,12 +65,12 @@ jobs:
             platform: linux/amd64
           - platform_tag: i386
             platform: linux/386
-          # - platform_tag: arm64
-          #   platform: linux/arm64
-          # - platform_tag: armv7
-          #   platform: linux/arm/v7
-          # - platform_tag: armv6
-          #   platform: linux/arm/v6
+          - platform_tag: arm64
+            platform: linux/arm64
+          - platform_tag: armv7
+            platform: linux/arm/v7
+          - platform_tag: armv6
+            platform: linux/arm/v6
     steps:
       - uses: actions/checkout@v3
 
@@ -145,7 +145,10 @@ jobs:
           docker manifest create \
             ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }} \
             --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-amd64 \
-            --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-i386
+            --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-i386 \
+            --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-arm64 \
+            --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-armv7 \
+            --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-armv6 
           docker manifest push ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}
 
       - name: Create latest manifest and push
@@ -154,7 +157,10 @@ jobs:
           docker manifest create \
             ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest \
             --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-amd64 \
-            --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-i386
+            --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-i386 \
+            --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-arm64 \
+            --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-armv7 \
+            --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-armv6
           docker manifest push ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
 
       - name: Update latest deployed version
