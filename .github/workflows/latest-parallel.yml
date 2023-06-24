@@ -58,8 +58,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - platform: linux/amd64
-            platform_tag: amd64
+          - platform_tag: amd64
+            platform: linux/amd64
+          - platform_tag: i386
+            platform: linux/386
+          # - platform_tag: armv7
+          #   platform: linux/arm/v7
     steps:
       - uses: actions/checkout@v3
 
@@ -266,7 +270,7 @@ jobs:
           docker manifest create \
             ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }} \
             --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-amd64
-          docker manifest push --purge ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}
+          docker manifest push ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}
 
       - name: Create latest manifest and push
         if: needs.get_versions.outputs.latest == needs.get_versions.outputs.target
@@ -274,7 +278,7 @@ jobs:
           docker manifest create \
             ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest \
             --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-amd64
-          docker manifest push --purge ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+          docker manifest push ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
 
       - name: Update latest deployed version
         run: |
