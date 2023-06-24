@@ -100,7 +100,7 @@ jobs:
             suffix=-${{ matrix.platform_tag }}
           tags: |
             type=raw,value=latest,enable=${{ needs.get_versions.outputs.target == needs.get_versions.outputs.latest }}
-            type=semver,pattern={{version}},value=${{ needs.get_versions.outputs.target }}
+            type=raw,value=${{ needs.get_versions.outputs.target }}
 
       - name: Print Tags
         run: echo ${{ steps.meta.outputs.tags }}
