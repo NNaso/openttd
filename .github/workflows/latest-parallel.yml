@@ -102,9 +102,6 @@ jobs:
             type=raw,value=latest,enable=${{ needs.get_versions.outputs.target == needs.get_versions.outputs.latest }}
             type=raw,value=${{ needs.get_versions.outputs.target }}
 
-      - name: Print Tags
-        run: echo ${{ steps.meta.outputs.tags }}
-
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
