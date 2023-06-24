@@ -193,7 +193,7 @@ jobs:
 
   create-manifests:
     runs-on: ubuntu-latest
-    needs: [get_versions, build-push] #, build-push-arm7, build-push-arm64]
+    needs: [get_versions, build-push]
 
     steps:
       - uses: actions/checkout@v3
