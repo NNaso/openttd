@@ -18,7 +18,7 @@ RUN apk update \
     zlib \
     libpng \
     lzo \
-    musl-dev gcc nlohmann-json libcurl sdl2 libpng gcc-arm-none-eabi libgcc libtool linux-headers g++ curl
+    musl-dev gcc nlohmann-json libcurl sdl2 libpng libgcc libtool linux-headers g++ curl
 
 RUN mkdir -p /config \
     && mkdir -p /main
