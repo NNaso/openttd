@@ -52,7 +52,7 @@ jobs:
         uses: actions/cache/save@v3
         with:
           path: ./src
-          key: ${{ runner.os }}-ottd
+          key: ottd-${{ needs.get_versions.outputs.target }}
 
   build-push:
     name: Build OpenTTD Docker
@@ -99,7 +99,7 @@ jobs:
         uses: actions/cache/restore@v3
         with:
           path: ./src
-          key: ${{ runner.os }}-ottd
+          key: ottd-${{ needs.get_versions.outputs.target }}
 
       - name: Docker meta
         id: meta
