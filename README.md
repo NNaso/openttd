@@ -1,4 +1,5 @@
-![Docker Image CI](https://github.com/nnaso/openttd/workflows/Docker%20Image%20CI/badge.svg?branch=master)  
+[![Docker Build Latest](https://github.com/NNaso/openttd/actions/workflows/latest-parallel.yml/badge.svg)](https://github.com/NNaso/openttd/)
+
 [![dockeri.co](https://dockeri.co/image/nextek/openttd)](https://hub.docker.com/r/nextek/openttd)
 
 ### An Alpine based image of [bateau/openttd](https://hub.docker.com/r/bateau/openttd)'s docker. ###
@@ -32,7 +33,7 @@ docker run --name OpenTTD_Server -d \
     -p 3979:3979/udp \
     -e PUID=1000  \
     -e PGID=1000 \
-    -e "loadgame=last-autosave"
+    -e "loadgame=last-autosave" \
     -v /path/to/your/.openttd:/home/openttd/.openttd \
     --restart=unless-stopped \
     nextek/openttd:latest
