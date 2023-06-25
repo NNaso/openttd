@@ -129,8 +129,10 @@ jobs:
 
       - name: Unpack Image
         run: |
-          tar xf /tmp/myimage.tar ./bcache
-          ls ./bcache
+          mkdir ./bcache
+          cd ./bcache
+          tar xf /tmp/myimage.tar
+          ls .
 
       - name: Build and push
         uses: docker/build-push-action@v3
