@@ -122,14 +122,17 @@ jobs:
         id: load-bld
         uses: actions/cache/restore@v3
         with:
-          path: ./tmp/build_cache.tar
+          path: ./tmp/build_cache_updated.tar
           key: ottd-cache-${{ matrix.platform_tag }}
-          restore-keys: ottd-cache-${{ matrix.platform_tag }}
       - name: Create dummy cache
         if: steps.load-bld.outputs.cache-hit != 'true'
         run: |
           mkdir ./tmp
-          tar -cf ./tmp/build_cache.tar -T /dev/null
+          tar -cf ./tmp/build_cache_updated.tar -T /dev/null
+
+      - name: Rename Cache
+        run: |
+          mv ./tmp/build_cache_updated.tar ./tmp/build_cache.tar
           
 
       - name: Build OTTD
