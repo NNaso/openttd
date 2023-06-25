@@ -133,7 +133,6 @@ jobs:
       - name: Rename Cache
         run: |
           mv ./tmp/build_cache_updated.tar ./tmp/build_cache.tar
-          
 
       - name: Build OTTD
         uses: docker/build-push-action@v3
@@ -147,6 +146,21 @@ jobs:
             buildcache=${{ github.workspace }}/tmp
           tags: ottd-cache:latest
           outputs: type=tar,dest=./tmp/build_cache_updated.tar
+
+      - name: Delete Old Cache
+        run: |
+          gh extension install actions/gh-actions-cache
+          
+          REPO=${{ github.repository }}
+          BRANCH="refs/pull/${{ github.event.pull_request.number }}/merge"
+
+          ## Setting this to not fail the workflow while deleting cache keys. 
+          set +e
+          echo "Deleting cache..."
+          gh actions-cache delete ottd-cache-${{ matrix.platform_tag }} -R $REPO -B $BRANCH --confirm
+          echo "Done"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save Build Cache
         id: cache-bld
