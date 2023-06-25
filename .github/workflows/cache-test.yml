@@ -117,15 +117,14 @@ jobs:
             type=raw,value=latest,enable=${{ needs.get_versions.outputs.target == needs.get_versions.outputs.latest }}
             type=raw,value=${{ needs.get_versions.outputs.target }}
 
-      - name: Prime tmp
-        run: |
-          mkdir ./tmp
+
       - name: Load Build Cache
         id: load-bld
         uses: actions/cache/restore@v3
         with:
-          path: ./tmp/
+          path: ./tmp/build_cache.tar
           key: ottd-cache-${{ matrix.platform_tag }}
+          restore-keys: ottd-cache-${{ matrix.platform_tag }}
       - name: Create dummy cache
         if: steps.load-bld.outputs.cache-hit != 'true'
         run: |
