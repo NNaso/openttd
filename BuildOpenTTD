@@ -24,7 +24,7 @@ RUN apk update \
 RUN mkdir -p /config \
     && mkdir -p /main
 
-RUN mkdir -p /tmp/build
+RUN mkdir -p /tmp
 
 COPY --from=buildcache . /tmp
 RUN cd /tmp && tar xf /tmp/build_cache.tar
@@ -32,6 +32,7 @@ RUN cd /tmp && tar xf /tmp/build_cache.tar
 #COPY ${OPENTTD_SRC} /tmp/src
 RUN ls -R /tmp
 COPY --from=openttd . /tmp/src
+RUN mkdir -p /tmp/build
 WORKDIR /tmp/build
 
 ARG TARGETPLATFORM
