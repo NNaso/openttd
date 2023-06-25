@@ -117,13 +117,15 @@ jobs:
             type=raw,value=latest,enable=${{ needs.get_versions.outputs.target == needs.get_versions.outputs.latest }}
             type=raw,value=${{ needs.get_versions.outputs.target }}
 
-
+      - name: Prime tmp
+        run: |
+          mkdir ./tmp
       - name: Load Build Cache
         id: load-bld
         uses: actions/cache/restore@v3
         with:
-          path: ./tmp/build_cache.tar
-          key: 'ottd-cache-${{ matrix.platform_tag }}'
+          path: ./tmp/
+          key: ottd-cache-${{ matrix.platform_tag }}
       - name: Create dummy cache
         if: steps.load-bld.outputs.cache-hit != 'true'
         run: |
@@ -149,7 +151,7 @@ jobs:
         uses: actions/cache/save@v3
         with:
           path: ./tmp/build_cache_updated.tar
-          key: 'ottd-cache-${{ matrix.platform_tag }}'
+          key: ottd-cache-${{ matrix.platform_tag }}
 
       # - name: Unpack Image
       #   run: |
