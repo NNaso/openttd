@@ -50,4 +50,4 @@ RUN echo Num Processors: $(nproc)
 RUN ninja -C build -j$(nproc)
 
 FROM alpine:latest AS scratch
-OPY --from=td_build /tmp/build /build 
+COPY --from=td_build /tmp/build /build 
