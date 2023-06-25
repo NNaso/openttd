@@ -1,4 +1,3 @@
-FROM ottd-cache:latest as cache
 FROM alpine:latest AS td_build
 
 ARG OPENGFX_VERSION="7.1"
@@ -26,7 +25,9 @@ RUN mkdir -p /config \
     && mkdir -p /main
 
 RUN mkdir -p /tmp/build
-COPY --from=cache /build /tmp/build
+COPY --from=buildcache . /tmp
+RUN cd /tmp && tar xf /tmp/build_cache_updated.tar
+RUN ls -R /tmp
 COPY --from=openttd . /tmp/src
 WORKDIR /tmp/build
 

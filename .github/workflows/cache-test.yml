@@ -116,6 +116,14 @@ jobs:
             type=raw,value=latest,enable=${{ needs.get_versions.outputs.target == needs.get_versions.outputs.latest }}
             type=raw,value=${{ needs.get_versions.outputs.target }}
 
+
+      - name: Load Build Cache
+        id: load-bld
+        uses: actions/cache/restore@v3
+        with:
+          path: /tmp/build_cache.tar
+          key: ottd-cache-${{ matrix.platform }}
+
       - name: Build OTTD
         uses: docker/build-push-action@v3
         with:
@@ -123,16 +131,25 @@ jobs:
           file: ./BuildOpenTTD
           #push: true
           platforms: ${{ matrix.platform }}
-          build-contexts: openttd=${{ github.workspace }}/src
+          build-contexts: |
+            openttd=${{ github.workspace }}/src
+            buildcache=/tmp/build_cache.tar
           tags: ottd-cache:latest
-          outputs: type=tar,dest=/tmp/myimage.tar
+          outputs: type=tar,dest=/tmp/build_cache_updated.tar
 
-      - name: Unpack Image
-        run: |
-          mkdir ./bcache
-          cd ./bcache
-          tar xf /tmp/myimage.tar
-          ls -R .
+      - name: Save Build Cache
+        id: cache-bld
+        uses: actions/cache/save@v3
+        with:
+          path: /tmp/build_cache_updated.tar
+          key: ottd-cache-${{ matrix.platform }}
+
+      # - name: Unpack Image
+      #   run: |
+      #     mkdir ./bcache
+      #     cd ./bcache
+      #     tar xf /tmp/myimage.tar
+      #     ls -R .
 
       - name: Build and push
         uses: docker/build-push-action@v3
@@ -141,7 +158,9 @@ jobs:
           file: ./BuildDocker
           #push: true
           platforms: ${{ matrix.platform }}
-          build-contexts: openttd=${{ github.workspace }}/src
+          build-contexts: |
+            openttd=${{ github.workspace }}/src
+            buildcache=/tmp/build_cache_updated.tar
           tags: ${{ steps.meta.outputs.tags }}
 
   # build-manifest:
