@@ -45,7 +45,7 @@ RUN cd /tmp/build && \
     ../src 
 
 RUN echo Num Processors: $(nproc)
-RUN ninja -C build
+RUN ninja -C build -j$(nproc) 
 RUN ninja -C build install
 
 # Add the latest graphics files
