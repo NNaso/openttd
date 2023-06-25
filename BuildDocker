@@ -34,7 +34,8 @@ WORKDIR /tmp/build
 ARG TARGETPLATFORM
 ARG TARGETARCH
 
-RUN ninja -C build install
+RUN cd /tmp/build && \
+    ninja -C build install
 
 # Add the latest graphics files
 ## Install OpenGFX
