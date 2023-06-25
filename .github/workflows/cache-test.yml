@@ -125,14 +125,14 @@ jobs:
           platforms: ${{ matrix.platform }}
           build-contexts: openttd=${{ github.workspace }}/src
           tags: ottd-cache:latest
-          outputs: type=docker,dest=/tmp/myimage.tar
+          outputs: type=tar,dest=/tmp/myimage.tar
 
       - name: Unpack Image
         run: |
           mkdir ./bcache
           cd ./bcache
           tar xf /tmp/myimage.tar
-          ls .
+          ls -R .
 
       - name: Build and push
         uses: docker/build-push-action@v3
