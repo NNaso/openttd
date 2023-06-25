@@ -137,7 +137,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           build-contexts: |
             openttd=${{ github.workspace }}/src
-            buildcache=/tmp/build_cache.tar
+            buildcache=${{ github.workspace }}/tmp
           tags: ottd-cache:latest
           outputs: type=tar,dest=/tmp/build_cache_updated.tar
 
@@ -164,7 +164,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           build-contexts: |
             openttd=${{ github.workspace }}/src
-            buildcache=/tmp/build_cache_updated.tar
+            buildcache=${{ github.workspace }}/tmp
           tags: ${{ steps.meta.outputs.tags }}
 
   # build-manifest:
