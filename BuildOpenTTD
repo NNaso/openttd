@@ -27,7 +27,8 @@ RUN mkdir -p /config \
 RUN mkdir -p /tmp/build
 
 COPY --from=buildcache . /tmp
-RUN cd /tmp/build && tar xf /tmp/build_cache.tar
+#RUN cd /tmp/build && tar xf /tmp/build_cache.tar
+ADD --from=buildcache ./build_cache.tar /tmp/build
 #COPY --from=cache /build /tmp/build
 #COPY ${OPENTTD_SRC} /tmp/src
 RUN ls -R /tmp
