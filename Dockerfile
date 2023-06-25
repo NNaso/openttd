@@ -6,11 +6,11 @@ ARG OPENTTD_VERSION="13.3"
 RUN apk update \
     && apk upgrade \
     && apk add \
+    build-base \
     unzip \
     wget \
     git \
     libc-dev \
-    make \
     cmake \
     patch \
     xz-dev \
@@ -18,6 +18,7 @@ RUN apk update \
     zlib \
     libpng \
     lzo \
+    ninja \
     musl-dev gcc nlohmann-json libcurl sdl2 libpng libgcc libtool linux-headers g++ curl
 
 RUN mkdir -p /config \
@@ -32,18 +33,20 @@ ARG TARGETPLATFORM
 ARG TARGETARCH
 RUN cd /tmp/build && \
     cmake \
-    -DOPTION_DEDICATED=ON \
-    -DOPTION_INSTALL_FHS=OFF \
-    -DCMAKE_BUILD_TYPE=release \
-    -DGLOBAL_DIR=/app \
-    -DPERSONAL_DIR=/ \
-    -DCMAKE_BINARY_DIR=bin \
-    -DCMAKE_INSTALL_PREFIX=/app \
+    -B build \
+    -D OPTION_DEDICATED=ON \
+    -D OPTION_INSTALL_FHS=OFF \
+    -D CMAKE_BUILD_TYPE=release \
+    -D GLOBAL_DIR=/app \
+    -D PERSONAL_DIR=/ \
+    -D CMAKE_BINARY_DIR=bin \
+    -D CMAKE_INSTALL_PREFIX=/app \
+    -G Ninja \
     ../src 
 
 RUN echo Num Processors: $(nproc)
-RUN make CMAKE_BUILD_TYPE=release -j$(nproc) && \
-    make install
+RUN ninja -C build
+RUN ninja -C build install
 
 # Add the latest graphics files
 ## Install OpenGFX
