@@ -125,7 +125,9 @@ jobs:
           key: ottd-cache-${{ matrix.platform }}
       - name: Create dummy cache
         if: steps.load-bld.outputs.cache-hit != 'true'
-        run: tar -cf ./tmp/build_cache.tar -T /dev/null
+        run: |
+          mkdir ./tmp
+          tar -cf ./tmp/build_cache.tar -T /dev/null
           
 
       - name: Build OTTD
