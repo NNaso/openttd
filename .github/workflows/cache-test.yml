@@ -123,6 +123,10 @@ jobs:
         with:
           path: /tmp/build_cache.tar
           key: ottd-cache-${{ matrix.platform }}
+      - name: Create dummy cache
+        if: steps.load-bld.outputs.cache-hit != 'true'
+        run: tar -cf /tmp/build_cache.tar -T /dev/null
+          
 
       - name: Build OTTD
         uses: docker/build-push-action@v3
