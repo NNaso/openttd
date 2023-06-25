@@ -121,11 +121,11 @@ jobs:
         id: load-bld
         uses: actions/cache/restore@v3
         with:
-          path: /tmp/build_cache.tar
+          path: ./tmp/build_cache.tar
           key: ottd-cache-${{ matrix.platform }}
       - name: Create dummy cache
         if: steps.load-bld.outputs.cache-hit != 'true'
-        run: tar -cf /tmp/build_cache.tar -T /dev/null
+        run: tar -cf ./tmp/build_cache.tar -T /dev/null
           
 
       - name: Build OTTD
@@ -139,13 +139,13 @@ jobs:
             openttd=${{ github.workspace }}/src
             buildcache=${{ github.workspace }}/tmp
           tags: ottd-cache:latest
-          outputs: type=tar,dest=/tmp/build_cache_updated.tar
+          outputs: type=tar,dest=./tmp/build_cache_updated.tar
 
       - name: Save Build Cache
         id: cache-bld
         uses: actions/cache/save@v3
         with:
-          path: /tmp/build_cache_updated.tar
+          path: ./tmp/build_cache_updated.tar
           key: ottd-cache-${{ matrix.platform }}
 
       # - name: Unpack Image
