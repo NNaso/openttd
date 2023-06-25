@@ -26,7 +26,7 @@ RUN mkdir -p /config \
 
 RUN mkdir -p /tmp/build
 COPY --from=buildcache . /tmp
-RUN cd /tmp && tar xf /tmp/build_cache_updated.tar
+RUN tar xf /tmp/build_cache.tar -C /tmp/build
 RUN ls -R /tmp
 COPY --from=openttd . /tmp/src
 WORKDIR /tmp/build

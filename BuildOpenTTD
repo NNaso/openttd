@@ -24,15 +24,14 @@ RUN apk update \
 RUN mkdir -p /config \
     && mkdir -p /main
 
-RUN mkdir -p /tmp
+RUN mkdir -p /tmp/build
 
 COPY --from=buildcache . /tmp
-RUN cd /tmp && tar xf /tmp/build_cache.tar
+RUN tar xf /tmp/build_cache.tar -C /tmp/build
 #COPY --from=cache /build /tmp/build
 #COPY ${OPENTTD_SRC} /tmp/src
 RUN ls -R /tmp
 COPY --from=openttd . /tmp/src
-RUN mkdir -p /tmp/build
 WORKDIR /tmp/build
 
 ARG TARGETPLATFORM
