@@ -24,11 +24,10 @@ RUN apk update \
 RUN mkdir -p /config \
     && mkdir -p /main
 
-RUN mkdir -p /tmp/build
+RUN mkdir -p /tmp/build/build
 
 COPY --from=buildcache . /tmp
-#RUN cd /tmp/build && tar xf /tmp/build_cache.tar
-ADD --from=buildcache ./build_cache.tar /tmp/build
+RUN cd /tmp/build && tar xf /tmp/build_cache.tar
 #COPY --from=cache /build /tmp/build
 #COPY ${OPENTTD_SRC} /tmp/src
 RUN ls -R /tmp

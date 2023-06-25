@@ -24,7 +24,7 @@ RUN apk update \
 RUN mkdir -p /config \
     && mkdir -p /main
 
-RUN mkdir -p /tmp/build
+RUN mkdir -p /tmp/build/build
 COPY --from=buildcache . /tmp
 RUN cd /tmp/build && tar xf /tmp/build_cache.tar
 RUN ls -R /tmp
