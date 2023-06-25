@@ -127,10 +127,10 @@ jobs:
           tags: ottd-cache:latest
           outputs: type=docker,dest=/tmp/myimage.tar
 
-      - name: Load image
+      - name: Unpack Image
         run: |
-          docker load --input /tmp/myimage.tar
-          docker image ls -a
+          tar xf /tmp/myimage.tar ./bcache
+          ls ./bcache
 
       - name: Build and push
         uses: docker/build-push-action@v3
