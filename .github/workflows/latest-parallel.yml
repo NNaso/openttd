@@ -76,6 +76,9 @@ jobs:
             platform: linux/arm/v6
             runner: [ubuntu-latest]
     runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v3
 
