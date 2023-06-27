@@ -148,7 +148,7 @@ jobs:
         with:
           arch: ${{ matrix.alpine-arch }}
           shell-name: alpine-${{ matrix.alpine-arch }}.sh
-          packages: >
+          packages: |
             build-base
             unzip
             wget
