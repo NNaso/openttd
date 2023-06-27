@@ -7,7 +7,6 @@ on:
 env:
   DOCKER_REPO_NAME: nextek
   DOCKER_IMAGE_NAME: openttd
-  OWNER_LC: 
 
 jobs:
   get_versions:
