@@ -143,36 +143,36 @@ jobs:
             g++ 
             curl
 
-      - name: Setup Target Alpine
-        uses: jirutka/setup-alpine@v1
-        with:
-          arch: ${{ matrix.alpine-arch }}
-          shell-name: alpine-${{ matrix.alpine-arch }}.sh
-          packages: |
-            build-base
-            unzip
-            wget
-            git
-            libc-dev
-            cmake
-            patch
-            xz-dev
-            pkgconfig
-            zlib
-            libpng
-            lzo
-            ninja
-            musl-dev 
-            gcc 
-            nlohmann-json 
-            libcurl 
-            sdl2 
-            libpng 
-            libgcc 
-            libtool 
-            linux-headers 
-            g++ 
-            curl
+      # - name: Setup Target Alpine
+      #   uses: jirutka/setup-alpine@v1
+      #   with:
+      #     arch: ${{ matrix.alpine-arch }}
+      #     shell-name: alpine-${{ matrix.alpine-arch }}.sh
+      #     packages: |
+      #       build-base
+      #       unzip
+      #       wget
+      #       git
+      #       libc-dev
+      #       cmake
+      #       patch
+      #       xz-dev
+      #       pkgconfig
+      #       zlib
+      #       libpng
+      #       lzo
+      #       ninja
+      #       musl-dev 
+      #       gcc 
+      #       nlohmann-json 
+      #       libcurl 
+      #       sdl2 
+      #       libpng 
+      #       libgcc 
+      #       libtool 
+      #       linux-headers 
+      #       g++ 
+      #       curl
 
       - name: Run script on the host system (Ubuntu)
         run: |
