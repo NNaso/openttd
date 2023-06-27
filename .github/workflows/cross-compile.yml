@@ -147,7 +147,7 @@ jobs:
         uses: jirutka/setup-alpine@v1
         with:
           arch: ${{ matrix.alpine-arch }}
-          shell-name: alpine-${{ matrix.alpine-arch }}.sh
+          shell-name: alpine-target.sh
           packages: |
             build-base
             unzip
@@ -210,7 +210,7 @@ jobs:
           ninja install
           ls -R .
           ls -R /app
-        shell: alpine-${ matrix.alpine-arch }.sh --root {0}
+        shell: alpine-target.sh --root {0}
 
 
 
