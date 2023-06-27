@@ -210,7 +210,7 @@ jobs:
           ninja -C build install
           ls -R .
           ls -R /app
-        shell: alpine-${{ matrix.alpine-arch }}.sh --root {0}
+        shell: alpine-${ matrix.alpine-arch }.sh --root {0}
 
 
 
