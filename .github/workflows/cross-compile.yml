@@ -23,19 +23,9 @@ jobs:
         run: |
           echo ${{ steps.get_versions.outputs.target }}
           echo ${{ steps.get_versions.outputs.latest }}
-    outputs:
-      target: ${{ steps.get_versions.outputs.target }}
-      latest: ${{ steps.get_versions.outputs.latest }}
-
-  fetch_openttd_source:
-    name: Cache OTTD Source
-    runs-on: ubuntu-latest
-    needs: get_versions
-    #if: vars.LATEST_DEPLOY != needs.get_versions.outputs.target
-    steps:
       - name: Clone OpenTTD Source
         run: |
-          git clone --depth 1 --branch "${{ needs.get_versions.outputs.target }}" https://github.com/OpenTTD/OpenTTD.git ./src
+          git clone --depth 1 --branch "${{ steps.get_versions.outputs.target }}" https://github.com/OpenTTD/OpenTTD.git ./src
       - name: Output OpenTTD Path
         run: |
           ls ${{ github.workspace }}/src
@@ -46,11 +36,35 @@ jobs:
         uses: actions/cache/save@v3
         with:
           path: ./src
-          key: ottd-${{ needs.get_versions.outputs.target }}
+          key: ottd-${{ steps.get_versions.outputs.target }}
+    outputs:
+      target: ${{ steps.get_versions.outputs.target }}
+      latest: ${{ steps.get_versions.outputs.latest }}
+
+  # fetch_openttd_source:
+  #   name: Cache OTTD Source
+  #   runs-on: ubuntu-latest
+  #   needs: get_versions
+  #   #if: vars.LATEST_DEPLOY != needs.get_versions.outputs.target
+  #   steps:
+  #     - name: Clone OpenTTD Source
+  #       run: |
+  #         git clone --depth 1 --branch "${{ needs.get_versions.outputs.target }}" https://github.com/OpenTTD/OpenTTD.git ./src
+  #     - name: Output OpenTTD Path
+  #       run: |
+  #         ls ${{ github.workspace }}/src
+  #         echo Version:
+  #         head -1 ${{ github.workspace }}/src/changelog.txt
+  #     - name: Cache src
+  #       id: cache-src
+  #       uses: actions/cache/save@v3
+  #       with:
+  #         path: ./src
+  #         key: ottd-${{ needs.get_versions.outputs.target }}
 
   build-push:
     name: Build OTTD Docker
-    needs: [get_versions, fetch_openttd_source]
+    needs: [get_versions]
     strategy:
       matrix:
         include:
@@ -221,9 +235,13 @@ jobs:
           path: ./app_build
           key: ottd-${{ matrix.platform_tag }}
 
-      - name: Run script on the target system (Ubuntu)
+      - name: Setup Empty Build dir
+        if: steps.load-build.outputs.cache-hit != 'true'
         run: |
           mkdir ./app_build
+
+      - name: Run script on the target system (Ubuntu)
+        run: |
           cd ./app_build
 
           cmake \
