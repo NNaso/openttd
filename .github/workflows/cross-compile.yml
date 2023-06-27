@@ -203,7 +203,7 @@ jobs:
           -D PERSONAL_DIR=/ \
           -D CMAKE_BINARY_DIR=bin \
           -D CMAKE_INSTALL_PREFIX=/app \
-          -D HOST_BINARY_DIR=${GITHUB_WORKSPACE}/host_build \
+          -D HOST_BINARY_DIR=../host_build \
           -G Ninja \
           ../src
           ninja -j$(nproc) 
