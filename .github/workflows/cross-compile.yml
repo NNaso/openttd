@@ -114,24 +114,24 @@ jobs:
       #     username: ${{ github.repository_owner }}
       #     password: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Cache src
-      #   id: cache-src
-      #   uses: actions/cache/restore@v3
-      #   with:
-      #     path: ./src
-      #     key: ottd-${{ needs.get_versions.outputs.target }}
-
-      # - name: Download OTTD Source
-      #   if: steps.cache-src.outputs.cache-hit != 'true'
-      #   run: |
-      #     git clone --depth 1 --branch "${{ needs.get_versions.outputs.target }}" https://github.com/OpenTTD/OpenTTD.git ./src
-      #     head -1 ${{ github.workspace }}/src/changelog.txt
+      - name: Cache src
+        id: cache-src
+        uses: actions/cache/restore@v3
+        with:
+          path: ./src
+          key: ottd-${{ needs.get_versions.outputs.target }}
 
       - name: Download OTTD Source
         if: steps.cache-src.outputs.cache-hit != 'true'
         run: |
-          git clone --depth 1 --branch 13.2 https://github.com/OpenTTD/OpenTTD.git ./src
+          git clone --depth 1 --branch "${{ needs.get_versions.outputs.target }}" https://github.com/OpenTTD/OpenTTD.git ./src
           head -1 ${{ github.workspace }}/src/changelog.txt
+
+      # - name: Download OTTD Source
+      #   if: steps.cache-src.outputs.cache-hit != 'true'
+      #   run: |
+      #     git clone --depth 1 --branch 13.2 https://github.com/OpenTTD/OpenTTD.git ./src
+      #     head -1 ${{ github.workspace }}/src/changelog.txt
 
       # - name: Setup Host Alpine
       #   uses: jirutka/setup-alpine@v1
