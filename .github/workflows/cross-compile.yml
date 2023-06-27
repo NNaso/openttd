@@ -54,18 +54,18 @@ jobs:
     strategy:
       matrix:
         include:
-          # - platform_tag: amd64
-          #   platform: linux/amd64
-          #   alpine-arch: x86_64
-          #   runner: [ubuntu-latest]
+          - platform_tag: amd64
+            platform: linux/amd64
+            alpine-arch: x86_64
+            runner: [ubuntu-latest]
           # - platform_tag: i386
           #   platform: linux/386
           #   alpine-arch: x86
           #   runner: [ubuntu-latest]
-          - platform_tag: arm64
-            platform: linux/arm64
-            alpine-arch: aarch64
-            runner: [ubuntu-latest]
+          # - platform_tag: arm64
+          #   platform: linux/arm64
+          #   alpine-arch: aarch64
+          #   runner: [ubuntu-latest]
           # - platform_tag: armv7
           #   platform: linux/arm/v7
           #   alpine-arch: armv7
@@ -113,35 +113,35 @@ jobs:
           git clone --depth 1 --branch "${{ needs.get_versions.outputs.target }}" https://github.com/OpenTTD/OpenTTD.git ./src
           head -1 ${{ github.workspace }}/src/changelog.txt
 
-      - name: Setup Host Alpine
-        uses: jirutka/setup-alpine@v1
-        with:
-          shell-name: alpine-x86_64.sh
-          packages: >
-            build-base
-            unzip
-            wget
-            git
-            libc-dev
-            cmake
-            patch
-            xz-dev
-            pkgconfig
-            zlib
-            libpng
-            lzo
-            ninja
-            musl-dev 
-            gcc 
-            nlohmann-json 
-            libcurl 
-            sdl2 
-            libpng 
-            libgcc 
-            libtool 
-            linux-headers 
-            g++ 
-            curl
+      # - name: Setup Host Alpine
+      #   uses: jirutka/setup-alpine@v1
+      #   with:
+      #     shell-name: alpine-x86_64.sh
+      #     packages: >
+      #       build-base
+      #       unzip
+      #       wget
+      #       git
+      #       libc-dev
+      #       cmake
+      #       patch
+      #       xz-dev
+      #       pkgconfig
+      #       zlib
+      #       libpng
+      #       lzo
+      #       ninja
+      #       musl-dev 
+      #       gcc 
+      #       nlohmann-json 
+      #       libcurl 
+      #       sdl2 
+      #       libpng 
+      #       libgcc 
+      #       libtool 
+      #       linux-headers 
+      #       g++ 
+      #       curl
 
       - name: Setup Target Alpine
         uses: jirutka/setup-alpine@v1
@@ -174,47 +174,80 @@ jobs:
             g++ 
             curl
 
-      - name: Run script on the host system (Ubuntu)
+      # - name: Run script on the host system (Ubuntu)
+      #   run: |
+      #     mkdir ./host_build
+      #     cd ./host_build
+
+      #     cmake \
+      #     -D OPTION_DEDICATED=ON \
+      #     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+      #     -DOPTION_TOOLS_ONLY=ON \
+      #     -G Ninja \
+      #     ../src
+      #     ninja -j$(nproc) 
+      #     ls -R .
+      #   shell: alpine-target.sh --root {0}
+
+
+      # - name: Run script on the target system (Ubuntu)
+      #   run: |
+      #     ls -R ./host_build
+      #     mkdir ./app_build
+      #     cd ./app_build
+
+      #     cmake \
+      #     -A
+      #     -D OPTION_DEDICATED=ON \
+      #     -D OPTION_INSTALL_FHS=OFF \
+      #     -D CMAKE_BUILD_TYPE=release \
+      #     -D GLOBAL_DIR=/app\
+      #     -D PERSONAL_DIR=/ \
+      #     -D CMAKE_BINARY_DIR=bin \
+      #     -D CMAKE_INSTALL_PREFIX=/app \
+      #     -D HOST_BINARY_DIR=../host_build \
+      #     -G Ninja \
+      #     ../src
+      #     ninja -j$(nproc) 
+      #     ninja install
+      #     ls -R .
+      #     ls -R /app
+      #   shell: alpine-target.sh --root {0}
+
+        - name: Cache src
+          id: cache-src
+          uses: actions/cache/restore@v3
+          with:
+            path: ./app_build
+            key: ottd-${{ matrix.platform_tag }}
+
+        - name: Run script on the target system (Ubuntu)
         run: |
-          mkdir ./host_build
-          cd ./host_build
-
-          cmake \
-          -D OPTION_DEDICATED=ON \
-          -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-          -DOPTION_TOOLS_ONLY=ON \
-          -G Ninja \
-          ../src
-          ninja -j$(nproc) 
-          ls -R .
-        shell: alpine-target.sh --root {0}
-
-
-      - name: Run script on the target system (Ubuntu)
-        run: |
-          ls -R ./host_build
           mkdir ./app_build
           cd ./app_build
 
           cmake \
+          -A
           -D OPTION_DEDICATED=ON \
           -D OPTION_INSTALL_FHS=OFF \
           -D CMAKE_BUILD_TYPE=release \
-          -D GLOBAL_DIR=/app\
-          -D PERSONAL_DIR=/ \
           -D CMAKE_BINARY_DIR=bin \
           -D CMAKE_INSTALL_PREFIX=/app \
-          -D HOST_BINARY_DIR=../host_build \
           -G Ninja \
           ../src
           ninja -j$(nproc) 
           ninja install
           ls -R .
           ls -R /app
-        shell: alpine-x86_64.sh --root {0}
+        shell: alpine-target.sh --root {0}
 
 
-
+        - name: Cache build
+        id: cache-src
+        uses: actions/cache/save@v3
+        with:
+          path: ./app_build
+          key: ottd-${{ matrix.platform_tag }}
 
       
 
