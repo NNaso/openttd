@@ -54,10 +54,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - platform_tag: amd64
-            platform: linux/amd64
-            alpine-arch: x86_64
-            runner: [ubuntu-latest]
+          # - platform_tag: amd64
+          #   platform: linux/amd64
+          #   alpine-arch: x86_64
+          #   runner: [ubuntu-latest]
           # - platform_tag: i386
           #   platform: linux/386
           #   alpine-arch: x86
@@ -187,11 +187,12 @@ jobs:
           ../src
           ninja -j$(nproc) 
           ls -R .
-        shell: alpine-target.sh --root {0}
+        shell: alpine-x86_64.sh --root {0}
 
 
       - name: Run script on the target system (Ubuntu)
         run: |
+          ls -R ./host_build
           mkdir ./app_build
           cd ./app_build
 
