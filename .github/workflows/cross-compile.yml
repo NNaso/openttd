@@ -113,35 +113,35 @@ jobs:
           git clone --depth 1 --branch "${{ needs.get_versions.outputs.target }}" https://github.com/OpenTTD/OpenTTD.git ./src
           head -1 ${{ github.workspace }}/src/changelog.txt
 
-      - name: Setup Host Alpine
-        uses: jirutka/setup-alpine@v1
-        with:
-          shell-name: alpine-x86_64.sh
-          packages: >
-            build-base
-            unzip
-            wget
-            git
-            libc-dev
-            cmake
-            patch
-            xz-dev
-            pkgconfig
-            zlib
-            libpng
-            lzo
-            ninja
-            musl-dev 
-            gcc 
-            nlohmann-json 
-            libcurl 
-            sdl2 
-            libpng 
-            libgcc 
-            libtool 
-            linux-headers 
-            g++ 
-            curl
+      # - name: Setup Host Alpine
+      #   uses: jirutka/setup-alpine@v1
+      #   with:
+      #     shell-name: alpine-x86_64.sh
+      #     packages: >
+      #       build-base
+      #       unzip
+      #       wget
+      #       git
+      #       libc-dev
+      #       cmake
+      #       patch
+      #       xz-dev
+      #       pkgconfig
+      #       zlib
+      #       libpng
+      #       lzo
+      #       ninja
+      #       musl-dev 
+      #       gcc 
+      #       nlohmann-json 
+      #       libcurl 
+      #       sdl2 
+      #       libpng 
+      #       libgcc 
+      #       libtool 
+      #       linux-headers 
+      #       g++ 
+      #       curl
 
       # - name: Setup Target Alpine
       #   uses: jirutka/setup-alpine@v1
