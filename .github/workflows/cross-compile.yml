@@ -222,32 +222,32 @@ jobs:
           key: ottd-${{ matrix.platform_tag }}
 
       - name: Run script on the target system (Ubuntu)
-      run: |
-        mkdir ./app_build
-        cd ./app_build
+        run: |
+          mkdir ./app_build
+          cd ./app_build
 
-        cmake \
-        -A
-        -D OPTION_DEDICATED=ON \
-        -D OPTION_INSTALL_FHS=OFF \
-        -D CMAKE_BUILD_TYPE=release \
-        -D CMAKE_BINARY_DIR=bin \
-        -D CMAKE_INSTALL_PREFIX=/app \
-        -G Ninja \
-        ../src
-        ninja -j$(nproc) 
-        ninja install
-        ls -R .
-        ls -R /app
-      shell: alpine-target.sh --root {0}
+          cmake \
+          -A
+          -D OPTION_DEDICATED=ON \
+          -D OPTION_INSTALL_FHS=OFF \
+          -D CMAKE_BUILD_TYPE=release \
+          -D CMAKE_BINARY_DIR=bin \
+          -D CMAKE_INSTALL_PREFIX=/app \
+          -G Ninja \
+          ../src
+          ninja -j$(nproc) 
+          ninja install
+          ls -R .
+          ls -R /app
+        shell: alpine-target.sh --root {0}
 
 
       - name: Cache build
-      id: cache-src
-      uses: actions/cache/save@v3
-      with:
-        path: ./app_build
-        key: ottd-${{ matrix.platform_tag }}
+        id: cache-src
+        uses: actions/cache/save@v3
+        with:
+          path: ./app_build
+          key: ottd-${{ matrix.platform_tag }}
 
       
 
