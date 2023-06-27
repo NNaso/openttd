@@ -87,25 +87,25 @@ jobs:
       - name: GHCR Create version manifest and push
         run: |
           docker manifest create \
-            ghcr.io/${{ OWNER_LC }}:${{ needs.get_versions.outputs.target }} \
-            --amend ghcr.io/${{ OWNER_LC }}:${{ needs.get_versions.outputs.target }}-amd64 \
-            --amend ghcr.io/${{ OWNER_LC }}:${{ needs.get_versions.outputs.target }}-i386 \
-            --amend ghcr.io/${{ OWNER_LC }}:${{ needs.get_versions.outputs.target }}-arm64 \
-            --amend ghcr.io/${{ OWNER_LC }}:${{ needs.get_versions.outputs.target }}-armv7 \
-            --amend ghcr.io/${{ OWNER_LC }}:${{ needs.get_versions.outputs.target }}-armv6 
-          docker manifest push ghcr.io/${{ OWNER_LC }}:${{ needs.get_versions.outputs.target }}
+            ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }} \
+            --amend ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}-amd64 \
+            --amend ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}-i386 \
+            --amend ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}-arm64 \
+            --amend ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}-armv7 \
+            --amend ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}-armv6 
+          docker manifest push ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}
 
       - name: GHCR Create latest manifest and push
         if: needs.get_versions.outputs.latest == needs.get_versions.outputs.target
         run: |
           docker manifest create \
-            ghcr.io/${{ OWNER_LC }}:latest \
-            --amend ghcr.io/${{ OWNER_LC }}:latest-amd64 \
-            --amend ghcr.io/${{ OWNER_LC }}:latest-i386 \
-            --amend ghcr.io/${{ OWNER_LC }}:latest-arm64 \
-            --amend ghcr.io/${{ OWNER_LC }}:latest-armv7 \
-            --amend ghcr.io/${{ OWNER_LC }}:latest-armv6
-          docker manifest push ghcr.io/${{ OWNER_LC }}:latest
+            ghcr.io/${{ env.OWNER_LC }}:latest \
+            --amend ghcr.io/${{ env.OWNER_LC }}:latest-amd64 \
+            --amend ghcr.io/${{ env.OWNER_LC }}:latest-i386 \
+            --amend ghcr.io/${{ env.OWNER_LC }}:latest-arm64 \
+            --amend ghcr.io/${{ env.OWNER_LC }}:latest-armv7 \
+            --amend ghcr.io/${{ env.OWNER_LC }}:latest-armv6
+          docker manifest push ghcr.io/${{ env.OWNER_LC }}:latest
 
       - name: Update latest deployed version
         run: |
