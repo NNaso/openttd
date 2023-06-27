@@ -185,7 +185,7 @@ jobs:
           -DOPTION_TOOLS_ONLY=ON \
           -G Ninja \
           ../src
-          ninja -C tools -j$(nproc) 
+          ninja -j$(nproc) 
           ls -R .
         shell: alpine-x86_64.sh --root {0}
 
@@ -206,8 +206,8 @@ jobs:
           -D HOST_BINARY_DIR=${GITHUB_WORKSPACE}/build_tools \
           -G Ninja \
           ../src
-          ninja -C build -j$(nproc) 
-          ninja -C build install
+          ninja -j$(nproc) 
+          ninja install
           ls -R .
           ls -R /app
         shell: alpine-${ matrix.alpine-arch }.sh --root {0}
