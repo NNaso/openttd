@@ -227,7 +227,7 @@ jobs:
           cd ./app_build
 
           cmake \
-          -A
+          -A aarch64
           -D OPTION_DEDICATED=ON \
           -D OPTION_INSTALL_FHS=OFF \
           -D CMAKE_BUILD_TYPE=release \
