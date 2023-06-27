@@ -1,4 +1,4 @@
-name: Docker Build Latest
+name: Build Manifest Test
 
 on:
   workflow_dispatch:
