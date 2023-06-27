@@ -214,8 +214,8 @@ jobs:
       #     ls -R /app
       #   shell: alpine-target.sh --root {0}
 
-      - name: Cache src
-        id: cache-src
+      - name: UnCache build
+        id: load-build
         uses: actions/cache/restore@v3
         with:
           path: ./app_build
@@ -243,7 +243,7 @@ jobs:
 
 
       - name: Cache build
-        id: cache-src
+        id: cache-build
         uses: actions/cache/save@v3
         with:
           path: ./app_build
