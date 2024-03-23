@@ -189,26 +189,22 @@ jobs:
           
       - name: Docker Hub Create version manifest and push
         run: |
-          docker manifest create \
-            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }} \
-            --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-amd64 \
-            --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-i386 \
-            --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-arm64 \
-            --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-armv7 \
-            --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-armv6 
-          docker manifest push ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}
+          docker buildx imagetools create -t ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }} \
+            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-amd64 \
+            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-i386 \
+            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-arm64 \
+            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-armv7 \
+            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-armv6 
 
       - name: Docker Hub Create latest manifest and push
         if: needs.get_versions.outputs.latest == needs.get_versions.outputs.target
         run: |
-          docker manifest create \
-            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest \
-            --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-amd64 \
-            --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-i386 \
-            --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-arm64 \
-            --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-armv7 \
-            --amend ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-armv6
-          docker manifest push ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+          docker buildx imagetools create -t ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest \
+            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-amd64 \
+            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-i386 \
+            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-arm64 \
+            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-armv7 \
+            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-armv6
           
       - name: Tolower - repository_owner
         run: |
@@ -218,26 +214,22 @@ jobs:
           
       - name: GHCR Create version manifest and push
         run: |
-          docker manifest create \
-            ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }} \
-            --amend ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}-amd64 \
-            --amend ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}-i386 \
-            --amend ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}-arm64 \
-            --amend ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}-armv7 \
-            --amend ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}-armv6 
-          docker manifest push ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}
+          docker buildx imagetools create -t ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }} \
+            ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}-amd64 \
+            ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}-i386 \
+            ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}-arm64 \
+            ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}-armv7 \
+            ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}-armv6 
 
       - name: GHCR Create latest manifest and push
         if: needs.get_versions.outputs.latest == needs.get_versions.outputs.target
         run: |
-          docker manifest create \
-            ghcr.io/${{ env.OWNER_LC }}:latest \
-            --amend ghcr.io/${{ env.OWNER_LC }}:latest-amd64 \
-            --amend ghcr.io/${{ env.OWNER_LC }}:latest-i386 \
-            --amend ghcr.io/${{ env.OWNER_LC }}:latest-arm64 \
-            --amend ghcr.io/${{ env.OWNER_LC }}:latest-armv7 \
-            --amend ghcr.io/${{ env.OWNER_LC }}:latest-armv6
-          docker manifest push ghcr.io/${{ env.OWNER_LC }}:latest
+          docker buildx imagetools create -t ghcr.io/${{ env.OWNER_LC }}:latest \
+            ghcr.io/${{ env.OWNER_LC }}:latest-amd64 \
+            ghcr.io/${{ env.OWNER_LC }}:latest-i386 \
+            ghcr.io/${{ env.OWNER_LC }}:latest-arm64 \
+            ghcr.io/${{ env.OWNER_LC }}:latest-armv7 \
+            ghcr.io/${{ env.OWNER_LC }}:latest-armv6
 
       - name: Update latest deployed version
         run: |
