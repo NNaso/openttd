@@ -242,7 +242,7 @@ jobs:
           cd ./native-build
 
           cmake \
-          -A
+          -B build \
           -D OPTION_DEDICATED=ON \
           -D OPTION_INSTALL_FHS=OFF \
           -D CMAKE_BUILD_TYPE=release \
@@ -262,7 +262,8 @@ jobs:
           cd ./cross-compile-build
 
           cmake \
-          -A
+          -A ${{ matrix.alpine-arch }}\
+          -B build \
           -D OPTION_DEDICATED=ON \
           -D OPTION_INSTALL_FHS=OFF \
           -D CMAKE_BUILD_TYPE=release \
