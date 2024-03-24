@@ -255,6 +255,7 @@ jobs:
           -G Ninja \
           ../native
           ninja -C build -j$(nproc) tools
+          ls -R .
         shell: alpine-native.sh --root {0}
 
       - name: Cross-Compile Game
@@ -273,7 +274,7 @@ jobs:
           -D PERSONAL_DIR=/ \
           -D CMAKE_BINARY_DIR=bin \
           -D CMAKE_INSTALL_PREFIX=/app \
-          -D HOST_BINARY_DIR=${{ github.workspace }}/native-build/ \
+          -D HOST_BINARY_DIR=${{ github.workspace }}/native-build/build/ \
           -G Ninja \
           ../cross-compile
           ninja -C build -j$(nproc) 
