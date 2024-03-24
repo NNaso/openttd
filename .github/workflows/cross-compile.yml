@@ -165,6 +165,8 @@ jobs:
 
       - name: Setup Build Directories
         run: |
+          mkdir ./native
+          mkdir ./cross-compile
           cp -r ./src/* ./native
           cp -r ./src/* ./cross-compile
 
