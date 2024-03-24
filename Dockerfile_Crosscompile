@@ -92,7 +92,7 @@ RUN mkdir -p /app/data/baseset/ \
 #Create the final distribution image
 FROM --platform=$TARGETPLATFORM alpine:latest
 RUN mkdir -p /usr/games/openttd/ \
-    && apk --no-cache add tini xz libstdc++ libgcc zlib musl
+    && apk --no-cache add tini xz libstdc++ libgcc zlib musl libcurl
 
 RUN addgroup --gid 1000 --system openttd
 RUN adduser openttd --disabled-password --uid 1000 -s /bin/sh -G openttd

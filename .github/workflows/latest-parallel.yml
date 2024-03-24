@@ -1,8 +1,8 @@
 name: Docker Build Latest
 
 on:
-  schedule:
-    - cron: '0 */6 * * *'
+  # schedule:
+  #   - cron: '0 */6 * * *'
   # push:
   #   branches: [master]
 #   pull_request:

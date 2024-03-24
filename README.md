@@ -1,4 +1,4 @@
-[![Docker Build Latest](https://github.com/NNaso/openttd/actions/workflows/latest-parallel.yml/badge.svg)](https://github.com/NNaso/openttd/)
+[![Docker Build Latest](https://github.com/NNaso/openttd/actions/workflows/latest-crosscompile.yml/badge.svg)](https://github.com/NNaso/openttd/)
 
 [![dockeri.co](https://dockeri.co/image/nextek/openttd)](https://hub.docker.com/r/nextek/openttd)
 
