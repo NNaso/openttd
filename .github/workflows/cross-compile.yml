@@ -260,7 +260,7 @@ jobs:
       - name: Cross-Compile Game
         run: |
           cd ${{ github.workspace }}
-          mkdir /cross-compile-build
+          mkdir ./cross-compile-build
           cd ./cross-compile-build
 
           cmake \
