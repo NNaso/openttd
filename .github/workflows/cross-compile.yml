@@ -253,7 +253,7 @@ jobs:
           -D OPTION_TOOLS_ONLY=ON \
           -G Ninja \
           ../native
-          ninja -C native-build -j$(nproc) 
+          ninja -C build -j$(nproc) 
         shell: alpine-native.sh --root {0}
 
       - name: Cross-Compile Game
