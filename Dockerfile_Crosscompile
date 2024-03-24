@@ -94,8 +94,8 @@ FROM --platform=$TARGETPLATFORM alpine:latest
 RUN mkdir -p /usr/games/openttd/ \
     && apk --no-cache add tini xz libstdc++ libgcc zlib musl
 
-RUN addgroup --gid "${PGID}" --system openttd
-RUN adduser openttd --disabled-password --uid "${PUID}" -s /bin/sh -G openttd
+RUN addgroup --gid 1000 --system openttd
+RUN adduser openttd --disabled-password --uid 1000 -s /bin/sh -G openttd
 
 COPY --from=td_build /app /usr/games/openttd
 COPY --chown=1000:1000 --chmod=+x openttd.sh /openttd.sh
