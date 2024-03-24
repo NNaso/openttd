@@ -68,18 +68,18 @@ jobs:
     strategy:
       matrix:
         include:
-          - platform_tag: amd64
-            platform: linux/amd64
-            alpine-arch: x86_64
-            runner: [ubuntu-latest]
+          # - platform_tag: amd64
+          #   platform: linux/amd64
+          #   alpine-arch: x86_64
+          #   runner: [ubuntu-latest]
           # - platform_tag: i386
           #   platform: linux/386
           #   alpine-arch: x86
           #   runner: [ubuntu-latest]
-          # - platform_tag: arm64
-          #   platform: linux/arm64
-          #   alpine-arch: aarch64
-          #   runner: [ubuntu-latest]
+          - platform_tag: arm64
+            platform: linux/arm64
+            alpine-arch: aarch64
+            runner: [ubuntu-latest]
           # - platform_tag: armv7
           #   platform: linux/arm/v7
           #   alpine-arch: armv7
@@ -163,11 +163,16 @@ jobs:
       #       g++ 
       #       curl
 
-      - name: Setup Target Alpine
+      - name: Setup Build Directories
+      run: |
+        cp -r ./src/* ./native
+        cp -r ./src/* ./cross-compile
+
+      - name: Setup Native Alpine
         uses: jirutka/setup-alpine@v1
         with:
           arch: ${{ matrix.alpine-arch }}
-          shell-name: alpine-target.sh
+          shell-name: alpine-native.sh
           packages: |
             build-base
             unzip
@@ -182,17 +187,96 @@ jobs:
             libpng
             lzo
             ninja
-            musl-dev 
-            gcc 
-            nlohmann-json 
-            libcurl 
-            sdl2 
-            libpng 
-            libgcc 
-            libtool 
-            linux-headers 
-            g++ 
-            curl
+            musl-dev gcc nlohmann-json libcurl sdl2 libpng libgcc libtool linux-headers g++ curl
+
+      - name: Setup Cross-Compile Alpine
+        uses: jirutka/setup-alpine@v1
+        with:
+          arch: x86_64
+          shell-name: alpine-cross.sh
+          packages: |
+            build-base
+            unzip
+            wget
+            git
+            libc-dev
+            cmake
+            patch
+            xz-dev
+            pkgconfig
+            zlib
+            libpng
+            lzo
+            ninja
+            musl-dev gcc nlohmann-json libcurl sdl2 libpng libgcc libtool linux-headers g++ curl
+          # build-base
+          # unzip
+          # wget
+          # git
+          # libc-dev
+          # cmake
+          # patch
+          # xz-dev
+          # pkgconfig
+          # zlib
+          # libpng
+          # lzo
+          # ninja
+          # musl-dev 
+          # gcc 
+          # nlohmann-json 
+          # libcurl 
+          # sdl2 
+          # libpng 
+          # libgcc 
+          # libtool 
+          # linux-headers 
+          # g++ 
+          # curl
+
+        - name: Build Native Tools
+        run: |
+          mkdir ./native-build
+          cd ./native-build
+
+          cmake \
+          -A
+          -D OPTION_DEDICATED=ON \
+          -D OPTION_INSTALL_FHS=OFF \
+          -D CMAKE_BUILD_TYPE=release \
+          -D GLOBAL_DIR=/app\
+          -D PERSONAL_DIR=/ \
+          -D CMAKE_BINARY_DIR=bin \
+          -D CMAKE_INSTALL_PREFIX=/app \
+          -D OPTION_TOOLS_ONLY=ON \
+          -G Ninja \
+          ../native
+          ninja -j$(nproc) 
+        shell: alpine-native.sh --root {0}
+
+        - name: Cross-Compile Game
+        run: |
+          mkdir ./cross-compile-build
+          cd ./cross-compile-build
+
+          cmake \
+          -A
+          -D OPTION_DEDICATED=ON \
+          -D OPTION_INSTALL_FHS=OFF \
+          -D CMAKE_BUILD_TYPE=release \
+          -D GLOBAL_DIR=/app\
+          -D PERSONAL_DIR=/ \
+          -D CMAKE_BINARY_DIR=bin \
+          -D CMAKE_INSTALL_PREFIX=/app \
+          -D OPTION_TOOLS_ONLY=ON \
+          -D HOST_BINARY_DIR=../native-build \
+          -G Ninja \
+          ../cross-compile
+          ninja -j$(nproc) 
+          ninja install
+          ls -R .
+          ls -R /app
+        shell: alpine-cross.sh --root {0}
 
       # - name: Run script on the host system (Ubuntu)
       #   run: |
@@ -234,43 +318,43 @@ jobs:
       #     ls -R /app
       #   shell: alpine-target.sh --root {0}
 
-      - name: UnCache build
-        id: load-build
-        uses: actions/cache/restore@v3
-        with:
-          path: ./app_build
-          key: ottd-${{ matrix.platform_tag }}
+      # - name: UnCache build
+      #   id: load-build
+      #   uses: actions/cache/restore@v3
+      #   with:
+      #     path: ./app_build
+      #     key: ottd-${{ matrix.platform_tag }}
 
-      - name: Setup Empty Build dir
-        if: steps.load-build.outputs.cache-hit != 'true'
-        run: |
-          mkdir ./app_build
+      # - name: Setup Empty Build dir
+      #   if: steps.load-build.outputs.cache-hit != 'true'
+      #   run: |
+      #     mkdir ./app_build
 
-      - name: Run script on the target system (Ubuntu)
-        run: |
-          cd ./app_build
+      # - name: Run script on the target system (Ubuntu)
+      #   run: |
+      #     cd ./app_build
 
-          cmake \
-          -D OPTION_DEDICATED=ON \
-          -D OPTION_INSTALL_FHS=OFF \
-          -D CMAKE_BUILD_TYPE=release \
-          -D CMAKE_BINARY_DIR=bin \
-          -D CMAKE_INSTALL_PREFIX=/app \
-          -G Ninja \
-          ../src
-          ninja -j$(nproc) 
-          ninja install
-          ls -R .
-          ls -R /app
-        shell: alpine-target.sh --root {0}
+      #     cmake \
+      #     -D OPTION_DEDICATED=ON \
+      #     -D OPTION_INSTALL_FHS=OFF \
+      #     -D CMAKE_BUILD_TYPE=release \
+      #     -D CMAKE_BINARY_DIR=bin \
+      #     -D CMAKE_INSTALL_PREFIX=/app \
+      #     -G Ninja \
+      #     ../src
+      #     ninja -j$(nproc) 
+      #     ninja install
+      #     ls -R .
+      #     ls -R /app
+      #   shell: alpine-target.sh --root {0}
 
 
-      - name: Cache build
-        id: cache-build
-        uses: actions/cache/save@v3
-        with:
-          path: ./app_build
-          key: ottd-${{ matrix.platform_tag }}
+      # - name: Cache build
+      #   id: cache-build
+      #   uses: actions/cache/save@v3
+      #   with:
+      #     path: ./app_build
+      #     key: ottd-${{ matrix.platform_tag }}
 
       
 
