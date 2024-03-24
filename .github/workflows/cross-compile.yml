@@ -238,6 +238,7 @@ jobs:
 
       - name: Build Native Tools
         run: |
+          cd ${{ github.workspace }}
           mkdir ./native-build
           cd ./native-build
 
@@ -258,7 +259,8 @@ jobs:
 
       - name: Cross-Compile Game
         run: |
-          mkdir ./cross-compile-build
+          cd ${{ github.workspace }}
+          mkdir /cross-compile-build
           cd ./cross-compile-build
 
           cmake \
