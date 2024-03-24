@@ -1,0 +1,239 @@
+name: Docker Build Latest (Cross-compile)
+
+on:
+  # schedule:
+  #   - cron: '0 */6 * * *'
+  workflow_dispatch:
+    branches: [master]
+
+env:
+  DOCKER_REPO_NAME: nextek
+  DOCKER_IMAGE_NAME: openttd
+
+jobs:
+  get_versions:
+    name: Fetch OTTD Versions
+    runs-on: ubuntu-latest
+    steps:
+      - name: get versions
+        id: get_versions
+        # yamllint disable-line rule:line-length
+        run: |
+          i=0
+          while [[ $i -lt 5 ]]; do
+            {
+              target_version=$(curl -s -H 'Accept: application/vnd.github.v3+json' https://api.github.com/repos/OpenTTD/OpenTTD/releases | jq -cMr '.[:1]|.[]|.tag_name')
+              latest_version=$(curl -s -H 'Accept: application/vnd.github.v3+json' https://api.github.com/repos/OpenTTD/OpenTTD/releases | jq -cMr '([.[]|select(all(.tag_name; contains("beta")|not))])|.[:1]|.[].tag_name')
+            } || { 
+              echo "json error" 
+            }
+
+            if [ ! -z $target_version ] && [ ! -z $latest_version ]; then
+              echo "Success"
+              echo "target=$target_version" >> $GITHUB_OUTPUT
+              echo "latest=$latest_version" >> $GITHUB_OUTPUT
+              break
+            fi
+            echo "Failed"
+            i=$((i + 1))
+            sleep 1
+          done
+
+          if [ -z $target_version ] || [ -z $latest_version ]; then
+            exit 1
+          fi
+      - name: Output version string
+        run: |
+          echo ${{ steps.get_versions.outputs.target }}
+          echo ${{ steps.get_versions.outputs.latest }}
+    outputs:
+      target: ${{ steps.get_versions.outputs.target }}
+      latest: ${{ steps.get_versions.outputs.latest }}
+
+  fetch_openttd_source:
+    name: Cache OTTD Source
+    runs-on: ubuntu-latest
+    needs: get_versions
+    if: vars.LATEST_DEPLOY != needs.get_versions.outputs.target
+    steps:
+      - name: Clone OpenTTD Source
+        run: |
+          git clone --depth 1 --branch "${{ needs.get_versions.outputs.target }}" https://github.com/OpenTTD/OpenTTD.git ./src
+      - name: Output OpenTTD Path
+        run: |
+          ls ${{ github.workspace }}/src
+          echo Version:
+          head -1 ${{ github.workspace }}/src/changelog.txt
+      - name: Cache src
+        id: cache-src
+        uses: actions/cache/save@v3
+        with:
+          path: ./src
+          key: ottd-${{ needs.get_versions.outputs.target }}
+
+  build-push:
+    name: Build OTTD Docker
+    needs: [get_versions, fetch_openttd_source]
+    strategy:
+      matrix:
+        include:
+          - platform_tag: amd64
+            platform: linux/amd64
+            runner: [ubuntu-latest]
+          - platform_tag: i386
+            platform: linux/386
+            runner: [ubuntu-latest]
+          - platform_tag: arm64
+            platform: linux/arm64
+            runner: [ubuntu-latest]
+          - platform_tag: armv7
+            platform: linux/arm/v7
+            runner: [ubuntu-latest]
+          - platform_tag: armv6
+            platform: linux/arm/v6
+            runner: [ubuntu-latest]
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # - name: Login to Docker Hub
+      #   uses: docker/login-action@v2
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+          
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cache src
+        id: cache-src
+        uses: actions/cache/restore@v3
+        with:
+          path: ./src
+          key: ottd-${{ needs.get_versions.outputs.target }}
+
+      - name: Download OTTD Source
+        if: steps.cache-src.outputs.cache-hit != 'true'
+        run: |
+          git clone --depth 1 --branch "${{ needs.get_versions.outputs.target }}" https://github.com/OpenTTD/OpenTTD.git ./src
+          head -1 ${{ github.workspace }}/src/changelog.txt
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}_cc
+          flavor: |
+            latest=false
+            suffix=-${{ matrix.platform_tag }}
+          tags: |
+            type=raw,value=latest,enable=${{ needs.get_versions.outputs.target == needs.get_versions.outputs.latest }}
+            type=raw,value=${{ needs.get_versions.outputs.target }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./Dockerfile_Crosscompile
+          push: true
+          platforms: ${{ matrix.platform }}
+          build-contexts: openttd=${{ github.workspace }}/src
+          tags: ${{ steps.meta.outputs.tags }}
+
+  build-manifest:
+    if: false
+    name: Create Multi-Platform Manifest
+    runs-on: ubuntu-latest
+    needs: [get_versions, build-push]
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+          
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Docker Hub Create version manifest and push
+        run: |
+          docker buildx imagetools create -t ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }} \
+            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-amd64 \
+            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-i386 \
+            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-arm64 \
+            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-armv7 \
+            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}-armv6 
+
+      - name: Docker Hub Create latest manifest and push
+        if: needs.get_versions.outputs.latest == needs.get_versions.outputs.target
+        run: |
+          docker buildx imagetools create -t ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest \
+            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-amd64 \
+            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-i386 \
+            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-arm64 \
+            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-armv7 \
+            ${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest-armv6
+          
+      - name: Tolower - repository_owner
+        run: |
+          echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
+        env:
+          OWNER: '${{ github.repository }}'
+          
+      - name: GHCR Create version manifest and push
+        run: |
+          docker buildx imagetools create -t ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }} \
+            ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}-amd64 \
+            ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}-i386 \
+            ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}-arm64 \
+            ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}-armv7 \
+            ghcr.io/${{ env.OWNER_LC }}:${{ needs.get_versions.outputs.target }}-armv6 
+
+      - name: GHCR Create latest manifest and push
+        if: needs.get_versions.outputs.latest == needs.get_versions.outputs.target
+        run: |
+          docker buildx imagetools create -t ghcr.io/${{ env.OWNER_LC }}:latest \
+            ghcr.io/${{ env.OWNER_LC }}:latest-amd64 \
+            ghcr.io/${{ env.OWNER_LC }}:latest-i386 \
+            ghcr.io/${{ env.OWNER_LC }}:latest-arm64 \
+            ghcr.io/${{ env.OWNER_LC }}:latest-armv7 \
+            ghcr.io/${{ env.OWNER_LC }}:latest-armv6
+
+      - name: Update latest deployed version
+        run: |
+          curl -X PATCH https://api.github.com/repositories/655397334/actions/variables/LATEST_DEPLOY -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.WEB_API }}" -H "X-GitHub-Api-Version: 2022-11-28" -d '{"name":"LATEST_DEPLOY", "value":"${{ needs.get_versions.outputs.latest }}"}'
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ env.DOCKER_REPO_NAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.get_versions.outputs.target }}'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
