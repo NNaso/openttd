@@ -68,6 +68,10 @@ jobs:
     strategy:
       matrix:
         include:
+          - platform_tag: arm64
+            platform: linux/arm64
+            alpine-arch: aarch64
+            runner: [ubuntu-latest]
           # - platform_tag: amd64
           #   platform: linux/amd64
           #   alpine-arch: x86_64
@@ -76,10 +80,6 @@ jobs:
           #   platform: linux/386
           #   alpine-arch: x86
           #   runner: [ubuntu-latest]
-          - platform_tag: arm64
-            platform: linux/arm64
-            alpine-arch: aarch64
-            runner: [ubuntu-latest]
           # - platform_tag: armv7
           #   platform: linux/arm/v7
           #   alpine-arch: armv7
@@ -93,9 +93,8 @@ jobs:
       contents: read
       packages: write
     steps:
-      - name: Checkout
       - uses: actions/checkout@v3
-      
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
@@ -165,9 +164,9 @@ jobs:
       #       curl
 
       - name: Setup Build Directories
-      run: |
-        cp -r ./src/* ./native
-        cp -r ./src/* ./cross-compile
+        run: |
+          cp -r ./src/* ./native
+          cp -r ./src/* ./cross-compile
 
       - name: Setup Native Alpine
         uses: jirutka/setup-alpine@v1
@@ -235,7 +234,7 @@ jobs:
           # g++ 
           # curl
 
-        - name: Build Native Tools
+      - name: Build Native Tools
         run: |
           mkdir ./native-build
           cd ./native-build
@@ -255,7 +254,7 @@ jobs:
           ninja -j$(nproc) 
         shell: alpine-native.sh --root {0}
 
-        - name: Cross-Compile Game
+      - name: Cross-Compile Game
         run: |
           mkdir ./cross-compile-build
           cd ./cross-compile-build
