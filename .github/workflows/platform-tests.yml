@@ -55,5 +55,5 @@ jobs:
 
       - name: Docker Run
         run: |
-          docker run --platform ${{ matrix.platform }} -init --entrypoint /bin/sh ghcr.io/${{ env.GITHUB_REPO }}:latest  \
+          docker run --platform ${{ matrix.platform }} --init --entrypoint /bin/sh ghcr.io/${{ env.GITHUB_REPO }}:latest  \
           -c 'timeout 10 ./openttd.sh'
