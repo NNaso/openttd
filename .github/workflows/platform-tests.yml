@@ -11,8 +11,7 @@ on:
     branches: [master]
 
 env:
-  DOCKER_REPO_NAME: nextek
-  DOCKER_IMAGE_NAME: openttd
+  GITHUB_REPO: nnaso/openttd
 
 
 jobs:
@@ -52,9 +51,9 @@ jobs:
 
       - name: Docker Pull
         run: |
-          docker pull --platform ${{ matrix.platform }} ghcr.io/${{ github.repository }}:latest
+          docker pull --platform ${{ matrix.platform }} ghcr.io/${{ GITHUB_REPO }}:latest
 
       - name: Docker Run
         run: |
-          docker run --platform ${{ matrix.platform }} -it --entrypoint /bin/sh ghcr.io/${{ github.repository }}:latest
+          docker run --platform ${{ matrix.platform }} -it --entrypoint /bin/sh ghcr.io/${{ GITHUB_REPO }}:latest
           timeout 10 openttd.sh
