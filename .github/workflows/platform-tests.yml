@@ -2,7 +2,7 @@ name: Docker Tests
 
 on:
   # schedule:
-  #   - cron: '0 */6 * * *'
+  #   - cron: '40 */6 * * *'
   # push:
   #   branches: [master]
 #   pull_request:
@@ -55,5 +55,5 @@ jobs:
 
       - name: Docker Run
         run: |
-          docker run --platform ${{ matrix.platform }} --init --entrypoint /bin/sh ghcr.io/${{ env.GITHUB_REPO }}:latest  \
+          docker run -rm --platform ${{ matrix.platform }} --init --entrypoint /bin/sh ghcr.io/${{ env.GITHUB_REPO }}:latest  \
           -c 'timeout 5 ./openttd.sh || ( [[ $? -eq 143 ]] && exit 0 )'
