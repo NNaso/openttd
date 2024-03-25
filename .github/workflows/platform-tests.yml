@@ -1,0 +1,60 @@
+name: Docker Tests
+
+on:
+  # schedule:
+  #   - cron: '0 */6 * * *'
+  # push:
+  #   branches: [master]
+#   pull_request:
+#     branches: [master]
+  workflow_dispatch:
+    branches: [master]
+
+env:
+  DOCKER_REPO_NAME: nextek
+  DOCKER_IMAGE_NAME: openttd
+
+
+jobs:
+  run-test:
+    name: Test Docker Image
+    strategy:
+      matrix:
+        include:
+          - platform_tag: amd64
+            platform: linux/amd64
+            runner: [ubuntu-latest]
+          - platform_tag: i386
+            platform: linux/386
+            runner: [ubuntu-latest]
+          - platform_tag: arm64
+            platform: linux/arm64
+            runner: [ubuntu-latest]
+          - platform_tag: armv7
+            platform: linux/arm/v7
+            runner: [ubuntu-latest]
+          - platform_tag: armv6
+            platform: linux/arm/v6
+            runner: [ubuntu-latest]
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+          
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker Pull
+        run: |
+          docker pull --platform ${{ matrix.platform }} ghcr.io/${{ github.repository }}:latest
+
+      - name: Docker Run
+        run: |
+          docker run --platform ${{ matrix.platform }} -it --entrypoint /bin/sh ghcr.io/${{ github.repository }}:latest
+          timeout 10 openttd.sh
