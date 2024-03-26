@@ -39,7 +39,7 @@ jobs:
               echo "json error" 
             }
 
-            if [ ! -z ${{ inputs.target_version_override'}} ]; then
+            if [ ! -z ${{ inputs.target_version_override }} ]; then
               target_version = ${{ inputs.target_version_override}}
             done
 
