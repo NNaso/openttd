@@ -40,7 +40,7 @@ jobs:
             }
 
             if [ ! -z ${{ inputs.target_version_override }} ]; then
-              target_version = ${{ inputs.target_version_override}}
+              target_version=${{ inputs.target_version_override}}
             done
 
             if [ ! -z $target_version ] && [ ! -z $latest_version ]; then
