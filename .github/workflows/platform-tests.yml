@@ -3,6 +3,10 @@ name: Docker Tests
 on:
   # schedule:
   #   - cron: '40 */6 * * *'
+  workflow_run:
+    workflows: ["Docker Build Latest (Cross-compile)"]
+    types:
+      - completed
   workflow_dispatch:
     branches: [master]
 
