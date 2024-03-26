@@ -12,6 +12,10 @@ on:
         type: boolean
         required: false
         default: false
+      target_version_override:
+        description: Openttd version to build
+        required: false
+        default: 'latest'
 
 env:
   DOCKER_REPO_NAME: nextek
@@ -34,6 +38,10 @@ jobs:
             } || { 
               echo "json error" 
             }
+
+            if [${{ inputs.target_version_override:-'latest' != 'latest'}}]; then
+              target_version = ${{ inputs.target_version_override }}
+            done
 
             if [ ! -z $target_version ] && [ ! -z $latest_version ]; then
               echo "Success"
