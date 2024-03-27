@@ -35,19 +35,13 @@ jobs:
           - platform_tag: armv6
             platform: linux/arm/v6
             runner: [ubuntu-latest]
+            cpu: 'arm1176'
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
-          
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Docker Pull
         run: |
@@ -55,5 +49,10 @@ jobs:
 
       - name: Docker Run
         run: |
-          docker run --platform ${{ matrix.platform }} --init --entrypoint /bin/sh ghcr.io/${{ env.GITHUB_REPO }}:latest  \
+          cpu_arg='' 
+          if [ ! -z ${{ matrix.cpu }} ]; then
+            cpu_arg='-e QEMU_CPU=${{ matrix.cpu }}'
+          fi
+
+          docker run $cpu_arg --platform ${{ matrix.platform }} --rm --init --entrypoint /bin/sh ghcr.io/${{ env.GITHUB_REPO }}:latest  \
           -c 'arch; (sleep 5; echo "dump_info roadtypes"; sleep 1;  echo "dump_info railtypes"; sleep 1; echo "dump_info cargotypes"; sleep 1; echo "save test_save"; sleep 2; echo "load test_save"; sleep 3; echo "exit" && cat) | ./openttd.sh'
